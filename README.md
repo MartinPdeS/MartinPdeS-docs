@@ -5,6 +5,9 @@ Shared Sphinx defaults for the MartinPdeS scientific Python repositories.
 The package intentionally uses a flat layout. A project keeps its own
 documentation content and assets, while this package supplies common Sphinx
 extensions, theme defaults, responsive layout settings, and gallery behavior.
+It also provides the shared author metadata, autodoc defaults, document
+defaults, theme navigation, repository links, version switcher, and output
+metadata used across the package family.
 
 In a project's `docs/source/conf.py`:
 
