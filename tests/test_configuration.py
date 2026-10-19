@@ -13,7 +13,8 @@ def test_configuration_has_project_overrides():
     assert config["epub_exclude_files"] == ["search.html"]
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
     assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]
-    assert config["html_theme_options"]["github_url"].endswith("MartinPdeS/Example")
+    assert "github_url" not in config["html_theme_options"]
+    assert config["html_context"]["github_repo"] == "Example"
 
 
 def test_custom_extensions_and_theme_options_are_preserved():

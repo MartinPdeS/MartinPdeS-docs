@@ -52,7 +52,6 @@ def configure(
     }
     if repository:
         owner, repo = repository.split("/", 1)
-        options["github_url"] = f"https://github.com/{repository}"
         options["icon_links"] = [
             {
                 "name": "GitHub",
