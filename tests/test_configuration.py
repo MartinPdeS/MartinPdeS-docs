@@ -11,6 +11,8 @@ def test_configuration_has_project_overrides():
     assert config["templates_path"] == ["_templates"]
     assert config["html_css_files"] == ["default.css", "layout.css"]
     assert config["epub_exclude_files"] == ["search.html"]
+    assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
+    assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]
     assert config["html_theme_options"]["github_url"].endswith("MartinPdeS/Example")
 
 

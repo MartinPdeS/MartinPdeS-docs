@@ -13,6 +13,7 @@ def configure(
     repository: str | None = None,
     extensions: list[str] | None = None,
     html_theme_options: dict | None = None,
+    sphinx_gallery_conf: dict | None = None,
     version: str = "latest",
     source_suffix: str = ".rst",
     master_doc: str = "index",
@@ -74,6 +75,23 @@ def configure(
     if html_theme_options:
         options.update(html_theme_options)
 
+    gallery = {
+        "examples_dirs": "../examples/",
+        "gallery_dirs": "gallery/",
+        "image_scrapers": ("matplotlib",),
+        "ignore_pattern": "/__",
+        "filename_pattern": r".*\.py",
+        "plot_gallery": True,
+        "thumbnail_size": [600, 600],
+        "download_all_examples": False,
+        "line_numbers": False,
+        "remove_config_comments": True,
+        "capture_repr": ("_repr_html_", "__repr__"),
+        "nested_sections": True,
+    }
+    if sphinx_gallery_conf:
+        gallery.update(sphinx_gallery_conf)
+
     return {
         "project": project,
         "package": package,
@@ -117,11 +135,6 @@ def configure(
         ],
         "epub_title": project,
         "epub_exclude_files": ["search.html"],
-        "sphinx_gallery_conf": {
-            "examples_dirs": "../../examples",
-            "gallery_dirs": "auto_examples",
-            "filename_pattern": r"\.py$",
-            "remove_config_comments": True,
-        },
+        "sphinx_gallery_conf": gallery,
         "_martinpdes_package_root": str(Path(__file__).parent),
     }
