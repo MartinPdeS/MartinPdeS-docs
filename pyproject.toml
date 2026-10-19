@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MartinPdeS-docs"
+version = "0.1.0"
+description = "Shared Sphinx configuration for MartinPdeS scientific Python packages."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "sphinx>=7",
+    "pydata-sphinx-theme>=0.15",
+    "sphinx-design>=0.6",
+    "sphinx-gallery>=0.16",
+]
+
+[tool.setuptools.packages.find]
+include = ["martinpdes_docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
