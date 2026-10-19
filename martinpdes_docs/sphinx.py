@@ -1,5 +1,6 @@
 """Configurable defaults for the shared project documentation sites."""
 
+import os
 from pathlib import Path
 
 
@@ -50,6 +51,7 @@ def configure(
         "use_edit_page_button": bool(repository),
     }
     if repository:
+        owner, repo = repository.split("/", 1)
         options["github_url"] = f"https://github.com/{repository}"
         options["icon_links"] = [
             {
@@ -72,6 +74,18 @@ def configure(
             "json_url": f"https://raw.githubusercontent.com/{repository}/documentation_page/version_switcher.json",
             "version_match": version,
         }
+
+    html_context = {}
+    if repository:
+        owner, repo = repository.split("/", 1)
+        ref_name = os.getenv("GITHUB_REF_NAME", "master")
+        html_context.update(
+            {
+                "github_user": owner,
+                "github_repo": repo,
+                "github_version": ref_name,
+            }
+        )
     if html_theme_options:
         options.update(html_theme_options)
 
@@ -102,6 +116,7 @@ def configure(
         "suppress_warnings": ["config.cache"],
         "html_theme": "pydata_sphinx_theme",
         "html_theme_options": options,
+        "html_context": html_context,
         "html_logo": logo,
         "html_favicon": favicon,
         "html_static_path": ["_static"],
