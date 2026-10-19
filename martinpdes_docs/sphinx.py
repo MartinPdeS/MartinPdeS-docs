@@ -99,6 +99,7 @@ def configure(
         "copyright": author,
         "extensions": extensions or default_extensions,
         "exclude_patterns": ["_build", "Thumbs.db", ".DS_Store"],
+        "suppress_warnings": ["config.cache"],
         "html_theme": "pydata_sphinx_theme",
         "html_theme_options": options,
         "html_logo": logo,
