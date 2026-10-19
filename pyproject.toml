@@ -13,6 +13,7 @@ dependencies = [
     "pydata-sphinx-theme>=0.15",
     "sphinx-design>=0.6",
     "sphinx-gallery>=0.16",
+    "pytest>=7",
 ]
 
 [tool.setuptools.packages.find]
