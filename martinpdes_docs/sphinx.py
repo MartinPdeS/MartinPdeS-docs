@@ -34,6 +34,7 @@ def configure(
         "sphinx_gallery.gen_gallery",
     ]
     options = {
+        "logo": {"text": project, "image": logo},
         "navigation_with_keys": True,
         "show_nav_level": 2,
         "navbar_align": "content",
