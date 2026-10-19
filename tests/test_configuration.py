@@ -7,9 +7,10 @@ def test_configuration_has_project_overrides():
     assert config["project"] == "Example"
     assert config["package"] == "example"
     assert config["html_logo"] == "_static/logo.svg"
-    assert config["html_static_path"] == ["_static"]
+    assert config["html_static_path"][0] == "_static"
+    assert config["html_static_path"][1].endswith("martinpdes_docs/static")
     assert config["templates_path"] == ["_templates"]
-    assert config["html_css_files"] == ["default.css", "layout.css"]
+    assert config["html_css_files"] == ["default.css", "martinpdes_layout.css"]
     assert config["epub_exclude_files"] == ["search.html"]
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
     assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]

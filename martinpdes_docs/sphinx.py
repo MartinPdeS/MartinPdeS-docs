@@ -118,9 +118,9 @@ def configure(
         "html_context": html_context,
         "html_logo": logo,
         "html_favicon": favicon,
-        "html_static_path": ["_static"],
+        "html_static_path": ["_static", str(Path(__file__).parent / "static")],
         "templates_path": ["_templates"],
-        "html_css_files": ["default.css", "layout.css"],
+        "html_css_files": ["default.css", "martinpdes_layout.css"],
         "autodoc_typehints": "description",
         "autodoc_default_options": {
             "members": False,

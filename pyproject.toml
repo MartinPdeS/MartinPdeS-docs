@@ -19,5 +19,8 @@ dependencies = [
 [tool.setuptools.packages.find]
 include = ["martinpdes_docs*"]
 
+[tool.setuptools.package-data]
+martinpdes_docs = ["static/*.css"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
