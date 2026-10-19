@@ -4,6 +4,20 @@ import os
 from pathlib import Path
 
 
+def _raster_thumbnail_path(logo: str, favicon: str) -> str | None:
+    """Choose a Sphinx-Gallery-compatible fallback thumbnail.
+
+    Sphinx-Gallery requires a raster image for ``default_thumb_file``.  SVG
+    files are valid theme logos and favicons, but are not accepted as gallery
+    thumbnail sources by all supported Sphinx-Gallery versions.
+    """
+    raster_suffixes = {".png", ".jpg", ".jpeg", ".gif"}
+    for candidate in (logo, favicon):
+        if Path(candidate).suffix.lower() in raster_suffixes:
+            return candidate
+    return None
+
+
 def configure(
     *,
     project: str,
@@ -97,6 +111,10 @@ def configure(
         "plot_gallery": True,
         "thumbnail_size": [600, 600],
         "download_all_examples": False,
+        # Use the project's favicon for examples that do not create a figure.
+        # The path is interpreted relative to the documentation source tree,
+        # just like ``html_favicon``.
+        "default_thumb_file": _raster_thumbnail_path(logo, favicon),
         "line_numbers": False,
         "remove_config_comments": True,
         "capture_repr": ("_repr_html_", "__repr__"),

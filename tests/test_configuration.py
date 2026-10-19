@@ -14,6 +14,15 @@ def test_configuration_has_project_overrides():
     assert config["epub_exclude_files"] == ["search.html"]
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
     assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]
+    assert config["sphinx_gallery_conf"]["default_thumb_file"] is None
+
+    raster = configure(
+        project="Example",
+        package="example",
+        logo="../images/logo.png",
+        favicon="_static/favicon.svg",
+    )
+    assert raster["sphinx_gallery_conf"]["default_thumb_file"] == "../images/logo.png"
     assert "github_url" not in config["html_theme_options"]
     assert config["html_context"]["github_repo"] == "Example"
 
