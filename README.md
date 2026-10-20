@@ -45,3 +45,7 @@ globals().update(
 
 Use `gallery_options` for project-specific Sphinx-Gallery settings such as an
 additional image scraper or an example error policy.
+
+For packages with compiled extensions, set `prefer_installed_package=True` so
+documentation builds import the installed wheel instead of the source
+checkout.

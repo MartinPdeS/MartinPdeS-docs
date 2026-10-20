@@ -2,7 +2,12 @@
 
 import os
 from collections.abc import Mapping, Sequence
-from importlib.metadata import PackageNotFoundError, version as distribution_version
+import sys
+from importlib.metadata import (
+    PackageNotFoundError,
+    distribution,
+    version as distribution_version,
+)
 from pathlib import Path
 
 
@@ -35,6 +40,17 @@ def _resolve_version(package: str, version: str | None) -> str:
         return "latest"
 
 
+def _prefer_installed_package(package: str) -> None:
+    """Put an installed distribution before the documentation checkout."""
+    try:
+        installed_site = str(distribution(package).locate_file(""))
+    except PackageNotFoundError:
+        return
+
+    sys.path[:] = [entry for entry in sys.path if entry != installed_site]
+    sys.path.insert(0, installed_site)
+
+
 def configure(
     *,
     project: str,
@@ -49,6 +65,7 @@ def configure(
     gallery_sections: Sequence[str] | None = None,
     gallery_default_thumb: str | None = None,
     gallery_options: Mapping[str, object] | None = None,
+    prefer_installed_package: bool = False,
     version: str | None = None,
     source_suffix: str = ".rst",
     master_doc: str = "index",
@@ -59,9 +76,13 @@ def configure(
     keep project-specific settings below that call so they remain easy to
     override.  Pass ``gallery_sections`` when examples are split into named
     directories; use ``gallery_default_thumb`` for a project-specific raster
-    fallback; and use ``gallery_options`` for less common Sphinx-Gallery
-    settings.
+    fallback; use ``gallery_options`` for less common Sphinx-Gallery settings;
+    and set ``prefer_installed_package`` for projects whose documentation must
+    import a built wheel instead of the source checkout.
     """
+    if prefer_installed_package:
+        _prefer_installed_package(package)
+
     resolved_version = _resolve_version(package, version)
 
     default_extensions = [

@@ -1,3 +1,6 @@
+from importlib.metadata import distribution
+import sys
+
 from martinpdes_docs import configure
 
 
@@ -79,3 +82,17 @@ def test_version_can_be_resolved_from_the_environment(monkeypatch):
     )
 
     assert config["html_theme_options"]["switcher"]["version_match"] == "v2.3.4"
+
+
+def test_installed_package_can_be_preferred(monkeypatch):
+    installed_site = str(distribution("MartinPdeS-docs").locate_file(""))
+    monkeypatch.setattr(sys, "path", ["checkout", installed_site, "other"])
+
+    configure(
+        project="Example",
+        package="MartinPdeS-docs",
+        prefer_installed_package=True,
+    )
+
+    assert sys.path[0] == installed_site
+    assert sys.path.count(installed_site) == 1
