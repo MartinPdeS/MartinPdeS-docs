@@ -27,3 +27,21 @@ globals().update(
 
 Project-specific values can be assigned below this call to override any
 shared default.
+
+For a multi-section Sphinx-Gallery, pass the section names instead of
+repeating the directory mappings:
+
+```python
+globals().update(
+    configure(
+        project="FlowCyPy",
+        package="FlowCyPy",
+        repository="MartinPdeS/FlowCyPy",
+        gallery_sections=["tutorials", "studies", "validation"],
+        gallery_default_thumb="_static/gallery-default.png",
+    )
+)
+```
+
+Use `gallery_options` for project-specific Sphinx-Gallery settings such as an
+additional image scraper or an example error policy.

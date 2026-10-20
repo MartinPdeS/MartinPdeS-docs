@@ -1,6 +1,8 @@
 """Configurable defaults for the shared project documentation sites."""
 
 import os
+from collections.abc import Mapping, Sequence
+from importlib.metadata import PackageNotFoundError, version as distribution_version
 from pathlib import Path
 
 
@@ -18,6 +20,21 @@ def _raster_thumbnail_path(logo: str, favicon: str) -> str | None:
     return None
 
 
+def _resolve_version(package: str, version: str | None) -> str:
+    """Resolve the documentation version without importing the package."""
+    if version is not None:
+        return version
+
+    environment_version = os.getenv("tag")
+    if environment_version:
+        return environment_version
+
+    try:
+        return distribution_version(package)
+    except PackageNotFoundError:
+        return "latest"
+
+
 def configure(
     *,
     project: str,
@@ -29,7 +46,10 @@ def configure(
     extensions: list[str] | None = None,
     html_theme_options: dict | None = None,
     sphinx_gallery_conf: dict | None = None,
-    version: str = "latest",
+    gallery_sections: Sequence[str] | None = None,
+    gallery_default_thumb: str | None = None,
+    gallery_options: Mapping[str, object] | None = None,
+    version: str | None = None,
     source_suffix: str = ".rst",
     master_doc: str = "index",
 ) -> dict:
@@ -37,13 +57,20 @@ def configure(
 
     In a project's ``conf.py`` use ``globals().update(configure(...))`` and
     keep project-specific settings below that call so they remain easy to
-    override.
+    override.  Pass ``gallery_sections`` when examples are split into named
+    directories; use ``gallery_default_thumb`` for a project-specific raster
+    fallback; and use ``gallery_options`` for less common Sphinx-Gallery
+    settings.
     """
+    resolved_version = _resolve_version(package, version)
+
     default_extensions = [
         "sphinx.ext.autodoc",
         "sphinx.ext.autosummary",
         "sphinx.ext.intersphinx",
+        "sphinx.ext.mathjax",
         "sphinx.ext.napoleon",
+        "sphinx.ext.autosectionlabel",
         "sphinx.ext.viewcode",
         "sphinx.ext.todo",
         "sphinx_design",
@@ -85,7 +112,7 @@ def configure(
         ]
         options["switcher"] = {
             "json_url": f"https://raw.githubusercontent.com/{repository}/documentation_page/version_switcher.json",
-            "version_match": version,
+            "version_match": resolved_version,
         }
 
     html_context = {}
@@ -111,6 +138,8 @@ def configure(
         "plot_gallery": True,
         "thumbnail_size": [600, 600],
         "download_all_examples": False,
+        "reset_modules_order": "after",
+        "within_subsection_order": "FileNameSortKey",
         # Use the project's favicon for examples that do not create a figure.
         # The path is interpreted relative to the documentation source tree,
         # just like ``html_favicon``.
@@ -120,6 +149,14 @@ def configure(
         "capture_repr": ("_repr_html_", "__repr__"),
         "nested_sections": True,
     }
+    if gallery_sections:
+        sections = list(gallery_sections)
+        gallery["examples_dirs"] = [f"../examples/{section}" for section in sections]
+        gallery["gallery_dirs"] = [f"gallery/{section}" for section in sections]
+    if gallery_default_thumb is not None:
+        gallery["default_thumb_file"] = gallery_default_thumb
+    if gallery_options:
+        gallery.update(gallery_options)
     if sphinx_gallery_conf:
         gallery.update(sphinx_gallery_conf)
 
