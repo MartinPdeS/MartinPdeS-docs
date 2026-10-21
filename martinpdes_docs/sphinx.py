@@ -21,8 +21,25 @@ def _raster_thumbnail_path(logo: str, favicon: str) -> str | None:
     raster_suffixes = {".png", ".jpg", ".jpeg", ".gif"}
     for candidate in (logo, favicon):
         if Path(candidate).suffix.lower() in raster_suffixes:
-            return candidate
+            return _resolve_doc_asset(candidate)
     return None
+
+
+def _resolve_doc_asset(path: str) -> str:
+    """Resolve a documentation asset relative to common Sphinx build roots."""
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return str(candidate)
+
+    roots = (
+        Path.cwd(),
+        Path.cwd() / "docs" / "source",
+    )
+    for root in roots:
+        resolved = root / candidate
+        if resolved.is_file():
+            return str(resolved)
+    return path
 
 
 def _resolve_version(package: str, version: str | None) -> str:
@@ -198,7 +215,7 @@ def configure(
         gallery["gallery_dirs"] = [f"gallery/{section}" for section in sections]
     if gallery is not None:
         if gallery_default_thumb is not None:
-            gallery["default_thumb_file"] = gallery_default_thumb
+            gallery["default_thumb_file"] = _resolve_doc_asset(gallery_default_thumb)
         if gallery_options:
             gallery.update(gallery_options)
         if sphinx_gallery_conf:

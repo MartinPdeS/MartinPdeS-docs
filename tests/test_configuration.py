@@ -37,7 +37,9 @@ def test_configuration_has_project_overrides():
         "gallery/tutorials",
         "gallery/validation",
     ]
-    assert sections["sphinx_gallery_conf"]["default_thumb_file"] == ("_static/gallery-default.png")
+    assert sections["sphinx_gallery_conf"]["default_thumb_file"].endswith(
+        "docs/source/_static/gallery-default.png"
+    )
 
     raster = configure(
         project="Example",
@@ -45,7 +47,7 @@ def test_configuration_has_project_overrides():
         logo="../images/logo.png",
         favicon="_static/favicon.svg",
     )
-    assert raster["sphinx_gallery_conf"]["default_thumb_file"] == "../images/logo.png"
+    assert raster["sphinx_gallery_conf"]["default_thumb_file"].endswith("images/logo.png")
     assert "github_url" not in config["html_theme_options"]
     assert config["html_context"]["github_repo"] == "Example"
 
@@ -96,6 +98,21 @@ def test_gallery_options_override_shared_defaults():
     )
 
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib", "pyvista")
+
+
+def test_gallery_thumbnail_paths_are_resolved_from_docs_source(tmp_path, monkeypatch):
+    asset = tmp_path / "docs" / "source" / "_static" / "gallery-default.png"
+    asset.parent.mkdir(parents=True)
+    asset.write_bytes(b"png")
+    monkeypatch.chdir(tmp_path)
+
+    config = configure(
+        project="Example",
+        package="example",
+        gallery_default_thumb="_static/gallery-default.png",
+    )
+
+    assert config["sphinx_gallery_conf"]["default_thumb_file"] == str(asset)
 
 
 def test_version_can_be_resolved_from_the_environment(monkeypatch):
