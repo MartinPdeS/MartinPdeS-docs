@@ -119,7 +119,7 @@ def configure(
         "show_prev_next": False,
         "show_version_warning_banner": True,
         "footer_start": ["copyright"],
-        "footer_end": ["sphinx-version", "theme-version"],
+        "footer_end": [],
         "pygments_light_style": "default",
         "pygments_dark_style": "github-dark",
         "use_edit_page_button": bool(repository),
