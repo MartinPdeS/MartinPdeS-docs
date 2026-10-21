@@ -175,6 +175,7 @@ def configure(
         "sphinx.ext.intersphinx",
         "sphinx.ext.mathjax",
         "sphinx.ext.napoleon",
+        "numpydoc",
         "sphinx.ext.autosectionlabel",
         "sphinx.ext.viewcode",
         "sphinx.ext.todo",

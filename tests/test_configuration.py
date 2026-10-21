@@ -63,6 +63,9 @@ def test_custom_extensions_and_theme_options_are_preserved():
     )
 
     assert config["extensions"] == ["custom.extension"]
+
+    defaults = configure(project="Example", package="example")
+    assert "numpydoc" in defaults["extensions"]
     assert config["html_theme_options"]["announcement"] == "Hello"
 
     additions = configure(
