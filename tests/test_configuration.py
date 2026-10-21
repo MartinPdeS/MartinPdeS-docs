@@ -1,4 +1,5 @@
 from importlib.metadata import distribution
+from pathlib import Path
 import sys
 
 from martinpdes_docs import configure
@@ -37,9 +38,10 @@ def test_configuration_has_project_overrides():
         "gallery/tutorials",
         "gallery/validation",
     ]
-    assert sections["sphinx_gallery_conf"]["default_thumb_file"].endswith(
-        "docs/source/_static/gallery-default.png"
-    )
+    assert sections["sphinx_gallery_conf"]["default_thumb_file"] in {
+        "_static/gallery-default.png",
+        str(Path.cwd() / "docs" / "source" / "_static" / "gallery-default.png"),
+    }
 
     raster = configure(
         project="Example",
