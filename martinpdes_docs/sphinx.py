@@ -59,13 +59,20 @@ def configure(
     logo: str = "_static/logo.svg",
     favicon: str = "_static/favicon.svg",
     repository: str | None = None,
-    extensions: list[str] | None = None,
+    extensions: Sequence[str] | None = None,
+    extension_additions: Sequence[str] | None = None,
     html_theme_options: dict | None = None,
+    logo_text: str | None = None,
+    logo_alt_text: str | None = None,
+    html_context: Mapping[str, object] | None = None,
+    html_css_files: Sequence[str] | None = None,
+    autodoc_default_options: Mapping[str, object] | None = None,
     sphinx_gallery_conf: dict | None = None,
     gallery_sections: Sequence[str] | None = None,
     gallery_default_thumb: str | None = None,
     gallery_options: Mapping[str, object] | None = None,
     prefer_installed_package: bool = False,
+    include_gallery: bool = True,
     version: str | None = None,
     source_suffix: str = ".rst",
     master_doc: str = "index",
@@ -85,20 +92,8 @@ def configure(
 
     resolved_version = _resolve_version(package, version)
 
-    default_extensions = [
-        "sphinx.ext.autodoc",
-        "sphinx.ext.autosummary",
-        "sphinx.ext.intersphinx",
-        "sphinx.ext.mathjax",
-        "sphinx.ext.napoleon",
-        "sphinx.ext.autosectionlabel",
-        "sphinx.ext.viewcode",
-        "sphinx.ext.todo",
-        "sphinx_design",
-        "sphinx_gallery.gen_gallery",
-    ]
     options = {
-        "logo": {"text": project, "image": logo},
+        "logo": {"text": project if logo_text is None else logo_text, "image": logo},
         "navigation_with_keys": True,
         "show_nav_level": 2,
         "navbar_align": "content",
@@ -112,6 +107,8 @@ def configure(
         "pygments_dark_style": "github-dark",
         "use_edit_page_button": bool(repository),
     }
+    if logo_alt_text is not None:
+        options["logo"]["alt_text"] = logo_alt_text
     if repository:
         owner, repo = repository.split("/", 1)
         options["icon_links"] = [
@@ -136,19 +133,42 @@ def configure(
             "version_match": resolved_version,
         }
 
-    html_context = {}
+    context = {
+        "doc_path": "docs/source",
+        "default_mode": "dark",
+    }
     if repository:
         owner, repo = repository.split("/", 1)
         ref_name = os.getenv("GITHUB_REF_NAME", "master")
-        html_context.update(
+        context.update(
             {
                 "github_user": owner,
                 "github_repo": repo,
                 "github_version": ref_name,
             }
         )
+    if html_context:
+        context.update(html_context)
     if html_theme_options:
         options.update(html_theme_options)
+
+    default_extensions = [
+        "sphinx.ext.autodoc",
+        "sphinx.ext.autosummary",
+        "sphinx.ext.intersphinx",
+        "sphinx.ext.mathjax",
+        "sphinx.ext.napoleon",
+        "sphinx.ext.autosectionlabel",
+        "sphinx.ext.viewcode",
+        "sphinx.ext.todo",
+        "sphinx_design",
+    ]
+    if include_gallery:
+        default_extensions.append("sphinx_gallery.gen_gallery")
+    if extensions is None:
+        configured_extensions = default_extensions + list(extension_additions or ())
+    else:
+        configured_extensions = list(extensions)
 
     gallery = {
         "examples_dirs": "../examples/",
@@ -170,40 +190,48 @@ def configure(
         "capture_repr": ("_repr_html_", "__repr__"),
         "nested_sections": True,
     }
-    if gallery_sections:
+    if not include_gallery:
+        gallery = None
+    elif gallery_sections:
         sections = list(gallery_sections)
         gallery["examples_dirs"] = [f"../examples/{section}" for section in sections]
         gallery["gallery_dirs"] = [f"gallery/{section}" for section in sections]
-    if gallery_default_thumb is not None:
-        gallery["default_thumb_file"] = gallery_default_thumb
-    if gallery_options:
-        gallery.update(gallery_options)
-    if sphinx_gallery_conf:
-        gallery.update(sphinx_gallery_conf)
+    if gallery is not None:
+        if gallery_default_thumb is not None:
+            gallery["default_thumb_file"] = gallery_default_thumb
+        if gallery_options:
+            gallery.update(gallery_options)
+        if sphinx_gallery_conf:
+            gallery.update(sphinx_gallery_conf)
 
-    return {
+    css_files = ["default.css", "martinpdes_layout.css"]
+    css_files.extend(html_css_files or ())
+    autodoc_options = {
+        "members": False,
+        "members-order": "bysource",
+        "undoc-members": False,
+        "show-inheritance": True,
+    }
+    autodoc_options.update(autodoc_default_options or {})
+
+    configuration = {
         "project": project,
         "package": package,
         "author": author,
         "copyright": author,
-        "extensions": extensions or default_extensions,
+        "extensions": configured_extensions,
         "exclude_patterns": ["_build", "Thumbs.db", ".DS_Store"],
         "suppress_warnings": ["config.cache"],
         "html_theme": "pydata_sphinx_theme",
         "html_theme_options": options,
-        "html_context": html_context,
+        "html_context": context,
         "html_logo": logo,
         "html_favicon": favicon,
         "html_static_path": ["_static", str(Path(__file__).parent / "static")],
         "templates_path": ["_templates"],
-        "html_css_files": ["default.css", "martinpdes_layout.css"],
+        "html_css_files": css_files,
         "autodoc_typehints": "description",
-        "autodoc_default_options": {
-            "members": False,
-            "members-order": "bysource",
-            "undoc-members": False,
-            "show-inheritance": True,
-        },
+        "autodoc_default_options": autodoc_options,
         "napoleon_google_docstring": False,
         "napoleon_numpy_docstring": True,
         "autosectionlabel_prefix_document": True,
@@ -220,12 +248,11 @@ def configure(
         "latex_elements": {},
         "latex_documents": [(master_doc, f"{package}.tex", f"{package} Documentation", author, "manual")],
         "man_pages": [(master_doc, package.lower(), f"{package} Documentation", [author], 1)],
-        "texinfo_documents": [
-            (master_doc, package, f"{package} Documentation", author, package,
-             f"Documentation for {package}.", "Miscellaneous")
-        ],
+        "texinfo_documents": [(master_doc, package, f"{package} Documentation", author, package, f"Documentation for {package}.", "Miscellaneous")],
         "epub_title": project,
         "epub_exclude_files": ["search.html"],
-        "sphinx_gallery_conf": gallery,
         "_martinpdes_package_root": str(Path(__file__).parent),
     }
+    if gallery is not None:
+        configuration["sphinx_gallery_conf"] = gallery
+    return configuration

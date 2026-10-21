@@ -14,6 +14,8 @@ def test_configuration_has_project_overrides():
     assert config["html_static_path"][1].endswith("martinpdes_docs/static")
     assert config["templates_path"] == ["_templates"]
     assert config["html_css_files"] == ["default.css", "martinpdes_layout.css"]
+    assert config["html_context"]["doc_path"] == "docs/source"
+    assert config["html_context"]["default_mode"] == "dark"
     assert config["epub_exclude_files"] == ["search.html"]
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
     assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]
@@ -35,9 +37,7 @@ def test_configuration_has_project_overrides():
         "gallery/tutorials",
         "gallery/validation",
     ]
-    assert sections["sphinx_gallery_conf"]["default_thumb_file"] == (
-        "_static/gallery-default.png"
-    )
+    assert sections["sphinx_gallery_conf"]["default_thumb_file"] == ("_static/gallery-default.png")
 
     raster = configure(
         project="Example",
@@ -60,6 +60,32 @@ def test_custom_extensions_and_theme_options_are_preserved():
 
     assert config["extensions"] == ["custom.extension"]
     assert config["html_theme_options"]["announcement"] == "Hello"
+
+    additions = configure(
+        project="Example",
+        package="example",
+        extension_additions=["pyvista.ext.plot_directive"],
+        html_css_files=["layout.css"],
+        logo_text="",
+        logo_alt_text="Example logo",
+        autodoc_default_options={"members": True},
+    )
+    assert "pyvista.ext.plot_directive" in additions["extensions"]
+    assert additions["html_css_files"][-1] == "layout.css"
+    assert additions["html_theme_options"]["logo"] == {
+        "text": "",
+        "image": "_static/logo.svg",
+        "alt_text": "Example logo",
+    }
+    assert additions["autodoc_default_options"]["members"] is True
+
+    no_gallery = configure(
+        project="Example",
+        package="example",
+        include_gallery=False,
+    )
+    assert "sphinx_gallery.gen_gallery" not in no_gallery["extensions"]
+    assert "sphinx_gallery_conf" not in no_gallery
 
 
 def test_gallery_options_override_shared_defaults():

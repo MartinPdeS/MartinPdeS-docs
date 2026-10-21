@@ -49,3 +49,25 @@ additional image scraper or an example error policy.
 For packages with compiled extensions, set `prefer_installed_package=True` so
 documentation builds import the installed wheel instead of the source
 checkout.
+
+The shared configuration also owns the common dark-mode context, CSS files,
+autodoc defaults, and navigation metadata. Add only project-specific values in
+`conf.py`, for example:
+
+```python
+globals().update(
+    configure(
+        project="SuPyMode",
+        package="SuPyMode",
+        repository="MartinPdeS/SuPyMode",
+        extension_additions=["pyvista.ext.plot_directive"],
+        html_css_files=["layout.css"],
+        autodoc_default_options={"members": True},
+        logo_text="",
+    )
+)
+```
+
+Use `include_gallery=False` for documentation sites without executable
+examples. The default theme, context, CSS, and extension set then remain
+centralized in this package.
