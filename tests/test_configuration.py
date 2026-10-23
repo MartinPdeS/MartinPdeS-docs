@@ -18,6 +18,13 @@ def test_configuration_has_project_overrides():
     assert config["html_context"]["doc_path"] == "docs/source"
     assert config["html_context"]["default_mode"] == "dark"
     assert config["epub_exclude_files"] == ["search.html"]
+    assert config["autodoc_default_options"] == {
+        "members": True,
+        "exclude-members": "__annotations__",
+        "members-order": "bysource",
+        "undoc-members": False,
+        "show-inheritance": True,
+    }
     assert config["sphinx_gallery_conf"]["image_scrapers"] == ("matplotlib",)
     assert config["sphinx_gallery_conf"]["thumbnail_size"] == [600, 600]
     assert config["sphinx_gallery_conf"]["default_thumb_file"] is None

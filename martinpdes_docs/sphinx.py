@@ -224,7 +224,8 @@ def configure(
     css_files = ["default.css", "martinpdes_layout.css"]
     css_files.extend(html_css_files or ())
     autodoc_options = {
-        "members": False,
+        "members": True,
+        "exclude-members": "__annotations__",
         "members-order": "bysource",
         "undoc-members": False,
         "show-inheritance": True,
