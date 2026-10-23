@@ -16,10 +16,6 @@ jobs:
       id-token: write
     uses: MartinPdeS/MPSActions/.github/workflows/publish_release.yml@v2
     with:
-      documentation: true
-      documentation_package_name: MartinPdeS-docs
-      documentation_python_version: "3.11"
-      documentation_retain_versions: 5
       debug: true
       pypi_package_type: pure
       pypi_python_version: "3.11"
