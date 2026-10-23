@@ -31,3 +31,4 @@ jobs:
       conda_test_import: martinpdes_docs
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
