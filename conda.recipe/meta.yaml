@@ -1,0 +1,49 @@
+package:
+  name: martinpdes-docs
+  version: {{ GIT_DESCRIBE_TAG | replace("v", "") }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  number: 0
+
+channels:
+  - conda-forge
+  - martinpdes
+
+requirements:
+  host:
+    - python {{ PY_VER }}*
+    - setuptools >=68
+    - pip
+  run:
+    - python >=3.10
+    - sphinx >=7
+    - pydata-sphinx-theme >=0.15
+    - sphinx-design >=0.6
+    - sphinx-gallery >=0.16
+    - numpydoc >=1.8,<2
+    - pytest >=7
+
+about:
+  home: https://github.com/MartinPdeS/MartinPdeS-docs
+  license: MIT
+  summary: "Shared Sphinx configuration for MartinPdeS scientific Python packages."
+  dev_url: https://github.com/MartinPdeS/MartinPdeS-docs
+  doc_url: https://github.com/MartinPdeS/MartinPdeS-docs
+  license_file: LICENSE
+
+test:
+  imports:
+    - martinpdes_docs
+  requires:
+    - pytest >=7
+  commands:
+    - python -c "from martinpdes_docs import configure"
+
+extra:
+  recipe-maintainers:
+    - MartinPdeS

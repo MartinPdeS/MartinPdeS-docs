@@ -1,4 +1,4 @@
-name: Deploy to PyPI
+name: Publish release
 
 on:
   push:
@@ -10,8 +10,24 @@ permissions:
 
 jobs:
   package:
-    uses: MartinPdeS/MPSActions/.github/workflows/publish_pure_package_to_PyPi.yml@v5
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    uses: MartinPdeS/MPSActions/.github/workflows/publish_release.yml@v2
     with:
-      python-version: "3.11"
+      documentation: true
+      documentation_package_name: MartinPdeS-docs
+      documentation_python_version: "3.11"
+      documentation_retain_versions: 5
+      debug: true
+      pypi_package_type: pure
+      pypi_python_version: "3.11"
+      pypi_test_command: 'python -c "import martinpdes_docs"'
+      conda_python_versions: '["3.14"]'
+      conda_os_list: '["ubuntu-latest"]'
+      conda_package_name: martinpdes-docs
+      conda_recipe_path: conda.recipe
+      conda_test_import: martinpdes_docs
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
