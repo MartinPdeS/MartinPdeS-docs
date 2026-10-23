@@ -6,25 +6,28 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
-  package:
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    uses: MartinPdeS/MPSActions/.github/workflows/publish_release.yml@v2
+  build:
+    uses: MartinPdeS/MPSActions/.github/workflows/build_pure_package.yml@v2
     with:
-      debug: true
-      pypi_package_type: pure
-      pypi_python_version: "3.11"
-      pypi_test_command: 'python -c "import martinpdes_docs"'
-      conda_python_versions: '["3.14"]'
-      conda_os_list: '["ubuntu-latest"]'
-      conda_package_name: martinpdes-docs
-      conda_recipe_path: conda.recipe
-      conda_test_import: martinpdes_docs
+      python_version: "3.11"
+      test_import: martinpdes_docs
+      artifact_identity: wheels-pure
+      download_retries: 3
+      retry_delay_seconds: 10
+
+  publish:
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    uses: MartinPdeS/MPSActions/.github/workflows/publish_distributions.yml@v2
+    with:
+      registry: pypi
+      artifact_identities: '["wheels-pure"]'
+      python_version: "3.11"
+      download_retries: 3
+      retry_delay_seconds: 10
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-      ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
