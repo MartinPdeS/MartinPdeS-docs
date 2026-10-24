@@ -25,3 +25,9 @@ martinpdes_docs = ["static/*.css"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[project.optional-dependencies]
+release = ["martinpdes-maintenance==0.2.2"]
+
+[tool.mps-maintenance]
+conda-recipe = "conda.recipe/meta.yaml"
