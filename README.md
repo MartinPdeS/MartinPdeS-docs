@@ -37,6 +37,15 @@ over the `tag` environment variable. The package must be importable and its
 order used for documentation imports. Omitting `version` retains the existing
 environment and distribution-metadata fallback.
 
+Pass `docs_root` when assets or gallery data live outside the current working
+directory. The optional `profile` argument accepts `"default"`,
+`"scientific-gallery"`, or `"minimal"`; the minimal profile disables
+Sphinx-Gallery while retaining the shared theme and autodoc defaults.
+
+Theme options and autodoc options are merged recursively, so a project can
+override one nested value without replacing shared defaults. Repository values
+must use the `owner/name` GitHub form.
+
 For a multi-section Sphinx-Gallery, pass the section names instead of
 repeating the directory mappings:
 

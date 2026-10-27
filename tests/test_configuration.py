@@ -93,6 +93,16 @@ def test_custom_extensions_and_theme_options_are_preserved():
         "image": "_static/logo.svg",
         "alt_text": "Example logo",
     }
+
+    nested = configure(
+        project="Example",
+        package="example",
+        html_theme_options={"logo": {"text": "Custom"}},
+    )
+    assert nested["html_theme_options"]["logo"] == {
+        "text": "Custom",
+        "image": "_static/logo.svg",
+    }
     assert additions["autodoc_default_options"]["members"] is True
 
     no_gallery = configure(
@@ -127,6 +137,44 @@ def test_gallery_thumbnail_paths_are_resolved_from_docs_source(tmp_path, monkeyp
     )
 
     assert config["sphinx_gallery_conf"]["default_thumb_file"] == str(asset)
+
+
+def test_docs_root_resolves_gallery_assets(tmp_path):
+    asset = tmp_path / "gallery-default.png"
+    asset.write_bytes(b"png")
+
+    config = configure(
+        project="Example",
+        package="example",
+        docs_root=tmp_path,
+        gallery_default_thumb="gallery-default.png",
+    )
+
+    assert config["sphinx_gallery_conf"]["default_thumb_file"] == str(asset)
+
+
+def test_repository_identifier_is_validated():
+    with pytest.raises(ValueError, match="owner/name"):
+        configure(project="Example", package="example", repository="github.com/owner/name")
+
+
+def test_minimal_profile_disables_gallery():
+    config = configure(project="Example", package="example", profile="minimal")
+
+    assert "sphinx_gallery.gen_gallery" not in config["extensions"]
+    assert "sphinx_gallery_conf" not in config
+
+
+def test_missing_distribution_warns_when_preferred():
+    with pytest.warns(RuntimeWarning, match="not installed"):
+        configure(project="Example", package="missing_example", prefer_installed_package=True)
+
+
+def test_missing_distribution_version_warns():
+    with pytest.warns(RuntimeWarning, match="using 'latest'"):
+        config = configure(project="Example", package="missing_example")
+
+    assert config["version"] == "latest"
 
 
 def test_version_can_be_resolved_from_the_environment(monkeypatch):
