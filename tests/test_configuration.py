@@ -2,6 +2,8 @@ from importlib.metadata import distribution
 from pathlib import Path
 import sys
 
+import pytest
+
 from martinpdes_docs import configure
 
 
@@ -137,6 +139,37 @@ def test_version_can_be_resolved_from_the_environment(monkeypatch):
     )
 
     assert config["html_theme_options"]["switcher"]["version_match"] == "v2.3.4"
+
+
+def test_auto_version_reads_package_file_without_importing_package(tmp_path, monkeypatch):
+    package = tmp_path / "example_auto_version"
+    package.mkdir()
+    (package / "__init__.py").write_text("raise RuntimeError('package must not be imported')\n")
+    (package / "_version.py").write_text('__version__ = version = "1.2.3"\n')
+    monkeypatch.syspath_prepend(str(tmp_path))
+    monkeypatch.setenv("tag", "v9.9.9")
+
+    config = configure(
+        project="Example", package="example_auto_version",
+        repository="MartinPdeS/Example", version="auto",
+    )
+
+    assert config["version"] == config["release"] == "1.2.3"
+    assert config["html_theme_options"]["switcher"]["version_match"] == "1.2.3"
+    assert "example_auto_version" not in sys.modules
+
+
+def test_auto_version_rejects_missing_or_invalid_version_file(tmp_path, monkeypatch):
+    package = tmp_path / "example_invalid_version"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    with pytest.raises(ValueError, match="Cannot find _version.py"):
+        configure(project="Example", package="example_invalid_version", version="auto")
+    (package / "_version.py").write_text("__version__ = None\n")
+    with pytest.raises(ValueError, match="non-empty __version__"):
+        configure(project="Example", package="example_invalid_version", version="auto")
 
 
 def test_installed_package_can_be_preferred(monkeypatch):

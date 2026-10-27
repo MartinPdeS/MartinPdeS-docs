@@ -28,6 +28,15 @@ globals().update(
 Project-specific values can be assigned below this call to override any
 shared default.
 
+Set `version="auto"` to read `__version__` from the importable package's
+`_version.py` without importing its `__init__.py`. This sets both Sphinx's
+`version` and `release` fields and the version switcher, and takes precedence
+over the `tag` environment variable. The package must be importable and its
+`_version.py` must provide a non-empty version string. With
+`prefer_installed_package=True`, discovery follows the same package search
+order used for documentation imports. Omitting `version` retains the existing
+environment and distribution-metadata fallback.
+
 For a multi-section Sphinx-Gallery, pass the section names instead of
 repeating the directory mappings:
 

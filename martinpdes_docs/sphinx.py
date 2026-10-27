@@ -1,7 +1,9 @@
 """Configurable defaults for the shared project documentation sites."""
 
 import os
+import runpy
 from collections.abc import Mapping, Sequence
+from importlib.util import find_spec
 import sys
 from importlib.metadata import (
     PackageNotFoundError,
@@ -44,6 +46,19 @@ def _resolve_doc_asset(path: str) -> str:
 
 def _resolve_version(package: str, version: str | None) -> str:
     """Resolve the documentation version without importing the package."""
+    if version == "auto":
+        spec = find_spec(package)
+        locations = spec.submodule_search_locations if spec is not None else None
+        if locations is None:
+            raise ValueError(f"Cannot find package {package!r} to read its _version.py.")
+        for location in locations:
+            version_file = Path(location) / "_version.py"
+            if version_file.is_file():
+                resolved = runpy.run_path(str(version_file)).get("__version__")
+                if not isinstance(resolved, str) or not resolved:
+                    raise ValueError(f"{version_file} must define a non-empty __version__ string.")
+                return resolved
+        raise ValueError(f"Cannot find _version.py in package {package!r}.")
     if version is not None:
         return version
 
@@ -102,7 +117,9 @@ def configure(
     directories; use ``gallery_default_thumb`` for a project-specific raster
     fallback; use ``gallery_options`` for less common Sphinx-Gallery settings;
     and set ``prefer_installed_package`` for projects whose documentation must
-    import a built wheel instead of the source checkout.
+    import a built wheel instead of the source checkout. Set ``version="auto"``
+    to read ``__version__`` from the importable package's ``_version.py`` and
+    use it for both Sphinx version fields and the version switcher.
     """
     if prefer_installed_package:
         _prefer_installed_package(package)
@@ -275,4 +292,7 @@ def configure(
     }
     if gallery is not None:
         configuration["sphinx_gallery_conf"] = gallery
+    if version == "auto":
+        configuration["version"] = resolved_version
+        configuration["release"] = resolved_version
     return configuration
