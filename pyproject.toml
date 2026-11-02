@@ -8,14 +8,7 @@ version = "0.5.0"
 description = "Shared Sphinx configuration for MartinPdeS scientific Python packages."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-    "sphinx>=7",
-    "pydata-sphinx-theme>=0.15",
-    "sphinx-design>=0.6",
-    "sphinx-gallery>=0.16",
-    "numpydoc>=1.8,<2",
-    "pytest>=7",
-]
+dependencies = ["sphinx>=7", "pydata-sphinx-theme>=0.15", "sphinx-design>=0.6", "sphinx-gallery>=0.16", "numpydoc>=1.8,<2"]
 
 [tool.setuptools.packages.find]
 include = ["martinpdes_docs*"]
@@ -27,7 +20,9 @@ martinpdes_docs = ["static/*.css"]
 testpaths = ["tests"]
 
 [project.optional-dependencies]
-release = ["martinpdes-maintenance==0.2.2"]
+release = ["martinpdes-maintenance==0.2.3"]
+testing = ["martinpdes-maintenance[testing]==0.2.3"]
+dev = ["martinpdes-maintenance[quality]==0.2.3"]
 
 [tool.mps-maintenance]
 conda-recipe = "conda.recipe/meta.yaml"
